@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import requests
 import os
 from urllib.parse import quote
+from datetime import datetime, timedelta
 
 def get_weather(location_lon, location_lat, api_timezone):
     try:
@@ -34,17 +35,14 @@ def get_time():
         response.raise_for_status()
         time_data = response.json()
         return time_data
-    except requests.RequestException as e:
+    except requests.RequestException as e:  
         print(f"Error fetching time data: {e}")
         return None
 
 def update_time():
-    time_data = get_time()
-    if time_data:
-        current_time = time_data['datetime'][11:19]  # Get hours, minutes, and seconds
-        date = time_data['datetime'][:10]
-        time_label.config(text=current_time)
-        date_label.config(text=date)
+    global current_time  # Use the global current_time to keep track of time
+    current_time += timedelta(seconds=1)
+    time_label.config(text=current_time.strftime("%H:%M:%S"))
     root.after(1000, update_time)  # Update time every second
 
 def update_weather():
@@ -61,7 +59,7 @@ def update_weather():
     root.after(600000, update_weather)  # Update weather every 10 minutes
 
 def display_info():
-    global root, time_label, date_label, temperature_label, weather
+    global root, time_label, date_label, temperature_label, weather, current_time
 
     ip_data = get_ip()
     if ip_data:
@@ -73,6 +71,8 @@ def display_info():
         time_data = get_time()
 
     if weather and time_data:
+        current_time = datetime.strptime(time_data['datetime'], "%Y-%m-%dT%H:%M:%S.%f%z")
+
         root = tk.Tk()
         root.title("Weather and Time Information")
 
@@ -105,16 +105,44 @@ def display_info():
         time_label = tk.Label(canvas, text="", font=big_font, bg=root["bg"], fg="white")
         time_label.pack(side=tk.TOP, padx=20, pady=10)
 
-        # Load the weather icon
-        weather_icon_path = os.path.join(os.path.dirname(__file__), "weather.webp")
-        try:
-            weather_icon = Image.open(weather_icon_path)
-        except FileNotFoundError:
-            print(f"Weather icon file not found at: {weather_icon_path}")
-            return
-        except Image.UnidentifiedImageError:
-            print(f"Unidentified image error for file: {weather_icon_path}")
-            return
+        # Loading icons for day
+        if (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_clear.png")
+
+
+        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 0):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_rainy.png")
+
+
+        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 1):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_snow.png")
+
+        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 1):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_snow_rain.png")
+
+
+        # Loading icons for night
+        if (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_clear.png")
+
+
+        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 0):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_rainy.png")
+
+
+        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 1):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_snow.png")
+
+        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 1):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_snow_rain.png")
 
         weather_icon = weather_icon.resize((75, 75), Image.LANCZOS)
         weather_icon = ImageTk.PhotoImage(weather_icon)
@@ -130,6 +158,8 @@ def display_info():
         # Date label with transparent background
         date_label = tk.Label(canvas, text="", font=small_font, bg=root["bg"], fg="white")
         date_label.pack(side=tk.TOP, padx=10, pady=10)
+
+        date_label.config(text=current_time.strftime("%Y-%m-%d"))
 
         update_time()  # Initialize time update
         update_weather()  # Initialize weather update
