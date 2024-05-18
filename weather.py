@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 
 def get_weather(location_lon, location_lat, api_timezone):
     try:
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={location_lon}&longitude={location_lat}&current=temperature_2m,apparent_temperature,is_day,rain,showers,snowfall&timezone={api_timezone}"
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={location_lon}&longitude={location_lat}&current=temperature_2m,apparent_temperature,is_day,cloud_cover,rain,showers,snowfall&timezone={api_timezone}"
         response = requests.get(url)
+        print(url)
         response.raise_for_status()
         data = response.json()
         return data
@@ -106,9 +107,14 @@ def display_info():
         time_label.pack(side=tk.TOP, padx=20, pady=10)
 
         # Loading icons for day
-        if (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0):
+        if (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] < 80):
             print("It's daytime")
             weather_icon_path = os.path.join(os.path.dirname(__file__), "day_clear.png")
+
+
+        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] >= 80 ):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_cloudy.png")
 
 
         elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 0):
@@ -126,9 +132,14 @@ def display_info():
 
 
         # Loading icons for night
-        if (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0):
+        if (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] < 80):
             print("It's daytime")
             weather_icon_path = os.path.join(os.path.dirname(__file__), "night_clear.png")
+
+
+        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] >= 80 ):
+            print("It's daytime")
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_cloudy.png")
 
 
         elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 0):
