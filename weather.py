@@ -7,7 +7,7 @@ from urllib.parse import quote
 
 def get_weather(location_lon, location_lat, api_timezone):
     try:
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={location_lat}&longitude={location_lon}&current=temperature_180m,apparent_temperature,is_day,rain,showers,snowfall&timezone={api_timezone}"
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={location_lon}&longitude={location_lat}&current=temperature_2m,apparent_temperature,is_day,rain,showers,snowfall&timezone={api_timezone}"
         print (url)
         response = requests.get(url)
         response.raise_for_status()
@@ -46,7 +46,7 @@ def update_time():
         date = time_data['datetime'][:10]
         time_label.config(text=current_time)
         date_label.config(text=date)
-    root.after(1, update_time)  # Update time every second
+    root.after(1000, update_time)  # Update time every second
 
 def display_info():
     ip_data = get_ip()
@@ -115,7 +115,7 @@ def display_info():
         icon_label.pack(side=tk.LEFT, padx=10, pady=10)
 
         # Temperature label with transparent background
-        temperature_label = tk.Label(canvas, text=f"{weather['current']['temperature_180m']}°C", font=small_font, bg=root["bg"], fg="white")
+        temperature_label = tk.Label(canvas, text=f"{weather['current']['temperature_2m']}°C", font=small_font, bg=root["bg"], fg="white")
         temperature_label.pack(side=tk.LEFT, padx=10, pady=10)
 
         # Date label with transparent background
