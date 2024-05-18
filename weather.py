@@ -144,6 +144,15 @@ def display_info():
             print("It's daytime")
             weather_icon_path = os.path.join(os.path.dirname(__file__), "night_snow_rain.png")
 
+        try:
+            weather_icon = Image.open(weather_icon_path)
+        except FileNotFoundError:
+            print(f"Weather icon file not found at: {weather_icon_path}")
+            return
+        except Image.UnidentifiedImageError:
+            print(f"Unidentified image error for file: {weather_icon_path}")
+            return
+
         weather_icon = weather_icon.resize((75, 75), Image.LANCZOS)
         weather_icon = ImageTk.PhotoImage(weather_icon)
         
