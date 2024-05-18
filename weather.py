@@ -3,18 +3,31 @@ from tkinter import font
 from PIL import Image, ImageTk
 import requests
 import os
+from urllib.parse import quote
 
-def get_weather(api_key, location):
+def get_weather(location_lon, location_lat, api_timezone):
     try:
-        url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={location}&aqi=no"
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={location_lat}&longitude={location_lon}&current=temperature_180m,apparent_temperature,is_day,rain,showers,snowfall&timezone={api_timezone}"
+        print (url)
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        return data['current']
+        return data
     except requests.RequestException as e:
         print(f"Error fetching weather data: {e}")
         return None
 
+def get_ip():
+    try:
+        url = "http://ip-api.com/json/?fields=61439"
+        response = requests.get(url)
+        response.raise_for_status()
+        ip_data = response.json()
+        return ip_data
+    except requests.RequestException as e:
+        print(f"Error fetching time data: {e}")
+        return None
+    
 def get_time():
     try:
         url = "http://worldtimeapi.org/api/ip"
@@ -36,10 +49,17 @@ def update_time():
     root.after(1, update_time)  # Update time every second
 
 def display_info():
-    location = "Matlock"
-    api_key = "0341d696117542b29d3101400241305"
-    weather = get_weather(api_key, location)
-    time_data = get_time()
+    ip_data = get_ip()
+    if ip_data:
+        location_lat = ip_data['lat']
+        location_lon = ip_data['lon']
+        print (ip_data)
+        timezone = ip_data['timezone']
+        api_timezone = quote(timezone)
+        weather = get_weather(location_lat, location_lon, api_timezone)
+        time_data = get_time()
+        ip_data = get_ip()
+
 
     if weather and time_data:
         global root, time_label, date_label
@@ -95,7 +115,7 @@ def display_info():
         icon_label.pack(side=tk.LEFT, padx=10, pady=10)
 
         # Temperature label with transparent background
-        temperature_label = tk.Label(canvas, text=f"{weather['temp_c']}°C", font=small_font, bg=root["bg"], fg="white")
+        temperature_label = tk.Label(canvas, text=f"{weather['current']['temperature_180m']}°C", font=small_font, bg=root["bg"], fg="white")
         temperature_label.pack(side=tk.LEFT, padx=10, pady=10)
 
         # Date label with transparent background
@@ -111,9 +131,3 @@ def display_info():
 
 if __name__ == "__main__":
     display_info()
-
-    '''
-        to do 
-        add ip track to get info about weather in their city  
-    '''
-        #gui interface for choosing color
