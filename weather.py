@@ -8,7 +8,6 @@ from urllib.parse import quote
 def get_weather(location_lon, location_lat, api_timezone):
     try:
         url = f"https://api.open-meteo.com/v1/forecast?latitude={location_lon}&longitude={location_lat}&current=temperature_2m,apparent_temperature,is_day,rain,showers,snowfall&timezone={api_timezone}"
-        print (url)
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
@@ -25,9 +24,9 @@ def get_ip():
         ip_data = response.json()
         return ip_data
     except requests.RequestException as e:
-        print(f"Error fetching time data: {e}")
+        print(f"Error fetching IP data: {e}")
         return None
-    
+
 def get_time():
     try:
         url = "http://worldtimeapi.org/api/ip"
@@ -48,22 +47,32 @@ def update_time():
         date_label.config(text=date)
     root.after(1000, update_time)  # Update time every second
 
-def display_info():
+def update_weather():
+    global weather
     ip_data = get_ip()
     if ip_data:
         location_lat = ip_data['lat']
         location_lon = ip_data['lon']
-        print (ip_data)
+        timezone = ip_data['timezone']
+        api_timezone = quote(timezone)
+        weather = get_weather(location_lat, location_lon, api_timezone)
+        if weather:
+            temperature_label.config(text=f"{weather['current']['temperature_2m']}°C")
+    root.after(600000, update_weather)  # Update weather every 10 minutes
+
+def display_info():
+    global root, time_label, date_label, temperature_label, weather
+
+    ip_data = get_ip()
+    if ip_data:
+        location_lat = ip_data['lat']
+        location_lon = ip_data['lon']
         timezone = ip_data['timezone']
         api_timezone = quote(timezone)
         weather = get_weather(location_lat, location_lon, api_timezone)
         time_data = get_time()
-        ip_data = get_ip()
-
 
     if weather and time_data:
-        global root, time_label, date_label
-        
         root = tk.Tk()
         root.title("Weather and Time Information")
 
@@ -123,9 +132,9 @@ def display_info():
         date_label.pack(side=tk.TOP, padx=10, pady=10)
 
         update_time()  # Initialize time update
+        update_weather()  # Initialize weather update
 
         root.mainloop()
-
     else:
         print("Error fetching data")
 
