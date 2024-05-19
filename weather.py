@@ -87,9 +87,9 @@ def display_info():
 
         # Calculate the position for placing the window in the top-left quarter
         window_width = 600
-        window_height = 200
+        window_height = 400
         x = screen_width // 2 - window_width // 2
-        y = screen_height // 8 - window_height // 2
+        y = screen_height // 4 - window_height // 2
 
         # Set the window position
         root.geometry(f"{window_width}x{window_height}+{x}+{y}")
@@ -107,53 +107,24 @@ def display_info():
         time_label.pack(side=tk.TOP, padx=20, pady=10)
 
         # Loading icons for day
-        if (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] < 80):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_clear.png")
+        if (weather['current']['is_day'] == 1):
+            if (weather['current']['rain'] != weather['current']['showers']) and weather['current']['snowfall'] == 1:
+                weather_icon_path = os.path.join(os.path.dirname(__file__), "rain_snow.webp")
 
+            elif (weather['current']['rain'] != weather['current']['showers']):
+                weather_icon_path = os.path.join(os.path.dirname(__file__), "rainy.webp")
 
-        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] >= 80 ):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_cloudy.png")
+            elif (weather['current']['snowfall'] == 1):
+                weather_icon_path = os.path.join(os.path.dirname(__file__), "snowy.webp")
+            
+            elif(weather['current']['cloud_cover'] < 80):
+                weather_icon_path = os.path.join(os.path.dirname(__file__), "cloudy.webp")
 
+            else:
+                weather_icon_path = os.path.join(os.path.dirname(__file__), "sunny.webp")
 
-        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 0):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_rainy.png")
-
-
-        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 1):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_snow.png")
-
-        elif (weather['current']['is_day'] == 1) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 1):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "day_snow_rain.png")
-
-
-        # Loading icons for night
-        if (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] < 80):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_clear.png")
-
-
-        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 0 and weather['current']['cloud_cover'] >= 80 ):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_cloudy.png")
-
-
-        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 0):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_rainy.png")
-
-
-        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] == weather['current']['showers']) and (weather['current']['snowfall'] == 1):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_snow.png")
-
-        elif (weather['current']['is_day'] == 0) and (weather['current']['rain'] != weather['current']['showers']) and (weather['current']['snowfall'] == 1):
-            print("It's daytime")
-            weather_icon_path = os.path.join(os.path.dirname(__file__), "night_snow_rain.png")
+        elif [weather['current']['is_day'] == 0]:
+            weather_icon_path = os.path.join(os.path.dirname(__file__), "night.webp")
 
         try:
             weather_icon = Image.open(weather_icon_path)
