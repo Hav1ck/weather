@@ -117,7 +117,7 @@ def display_info():
             elif (weather['current']['snowfall'] == 1):
                 weather_icon_path = os.path.join(os.path.dirname(__file__), "snowy.webp")
             
-            elif(weather['current']['cloud_cover'] < 80):
+            elif(weather['current']['cloud_cover'] >= 80):
                 weather_icon_path = os.path.join(os.path.dirname(__file__), "cloudy.webp")
 
             else:
